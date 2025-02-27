@@ -36,21 +36,23 @@ st.markdown("""
     padding: 15px;
     background-color: #f8f9fa;
     border-radius: 10px;
-    display: flex;
-    overflow-x: auto;
-    gap: 10px;
 }
 .calendar-header {
     text-align: center;
     margin-bottom: 15px;
     font-size: 1.1em;
 }
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    width: 100%;
+}
 .day-column {
     background-color: white;
     padding: 12px;
     border-radius: 5px;
-    min-width: 120px;
-    flex: 1;
+    text-align: center;
 }
 .day-column h4 {
     font-size: 0.9em;
@@ -67,7 +69,7 @@ st.markdown("""
 }
 .link-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    grid-template-columns: repeat(5, 1fr);
     gap: 15px;
     padding: 20px;
     background-color: #f8f9fa;
@@ -140,6 +142,7 @@ else:
     # Calendar Section
     st.markdown('<div class="calendar-section">', unsafe_allow_html=True)
     st.markdown('<h2 class="calendar-header">📅 Lezioni della Settimana</h2>', unsafe_allow_html=True)
+    st.markdown('<div class="calendar-grid">', unsafe_allow_html=True)
 
     giorni = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"]
 
@@ -166,7 +169,7 @@ else:
             st.markdown("<i>Nessuna lezione</i>", unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div></div>', unsafe_allow_html=True)
 
     # Quick Links Section
     if not st.session_state.custom_links.empty:

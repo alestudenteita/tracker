@@ -80,3 +80,91 @@ st.markdown("""
     text-align: center;
 }
 .link-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+.custom-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    padding: 10px;
+    background: white;
+    border-radius: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.custom-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.custom-link img {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 8px;
+    transition: transform 0.2s;
+}
+.custom-link:hover img {
+    transform: scale(1.1);
+}
+.stats-section {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# Get branding settings
+try:
+    logo_bytes, welcome_message = get_branding_settings()
+except Exception as e:
+    st.error(f"Errore nel caricamento delle impostazioni: {str(e)}")
+    logo_bytes, welcome_message = None, None
+
+# Gestione Login
+if not check_auth():
+    st.title("🔐 Login")
+
+    if welcome_message:
+        st.markdown(f"### {welcome_message}")
+
+    with st.form("login_form"):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        submit = st.form_submit_button("Accedi")
+
+        if submit:
+            if login(username, password):
+                st.success("Login effettuato con successo!")
+                st.rerun()
+            else:
+                st.error("Username o password non validi")
+else:
+    # Header con logout
+    col1, col2 = st.columns([6,1])
+
+    # Logo centrato
+    col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
+    with col_logo2:
+        if logo_bytes:
+            try:
+                st.markdown('<div class="logo-container">', unsafe_allow_html=True)
+                st.image(logo_bytes, use_container_width=True)
+                st.markdown('</div>', unsafe_allow_html=True)
+            except:
+                st.markdown("<div class='emoji-header'>📚 💬 🎓</div>", unsafe_allow_html=True)
+        else:
+            st.markdown("<div class='emoji-header'>📚 💬 🎓</div>", unsafe_allow_html=True)
+
+    with col2:
+        if st.button("Logout"):
+            logout()
+            st.rerun()

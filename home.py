@@ -1,4 +1,3 @@
-
 import streamlit as st
 
 # Set page config must be the first Streamlit command
@@ -166,7 +165,7 @@ else:
         for idx, (col, giorno) in enumerate(zip(cols, giorni)):
             with col:
                 st.markdown(f'<div class="day-column">', unsafe_allow_html=True)
-                st.markdown(f"#### {giorno}")
+                st.markdown(f"<h4 title='{giorno}'>{giorno}</h4>", unsafe_allow_html=True)
 
                 # Filtra gli studenti per questo giorno
                 studenti_giorno = st.session_state.giorni_lezione[
@@ -192,7 +191,7 @@ else:
         for idx, (col, giorno) in enumerate(zip(cols, giorni)):
             with col:
                 st.markdown(f'<div class="day-column">', unsafe_allow_html=True)
-                st.markdown(f"#### {giorno}")
+                st.markdown(f"<h4 title='{giorno}'>{giorno}</h4>", unsafe_allow_html=True)
                 st.markdown("<i>Nessuna lezione</i>", unsafe_allow_html=True)
                 st.markdown('</div>', unsafe_allow_html=True)
 
@@ -211,7 +210,7 @@ else:
                         encoded_image = link.icona
                     else:
                         raise ValueError("Formato icona non supportato")
-                        
+
                     st.markdown(f"""
                     <a href="{link.url}" class="custom-link" target="_blank">
                         <img src="data:image/png;base64,{encoded_image}" alt="{link.titolo}"/>

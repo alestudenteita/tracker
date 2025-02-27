@@ -1,3 +1,4 @@
+
 import streamlit as st
 
 # Set page config must be the first Streamlit command
@@ -21,6 +22,10 @@ if 'studenti' not in st.session_state:
 
 if 'custom_links' not in st.session_state:
     st.session_state.custom_links = pd.DataFrame()
+
+if 'giorni_lezione' not in st.session_state:
+    st.session_state.giorni_lezione = pd.DataFrame()
+
 
 # Initialize auth and database first
 init_auth()
@@ -112,6 +117,139 @@ st.markdown("""
     white-space: nowrap;
     max-width: 100%;
 }
+
+/* Calendario più compatto */
+.calendar-section {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 8px;
+    margin-bottom: 15px;
+    overflow-x: hidden;
+}
+.calendar-header {
+    font-size: 1.2rem;
+    text-align: center;
+    margin-bottom: 8px;
+}
+.days-container {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+}
+.day-column {
+    background-color: white;
+    padding: 4px;
+    border-radius: 5px;
+    border: 1px solid #e0e0e0;
+    min-width: 0;
+}
+.day-column h4 {
+    font-size: 0.7rem;
+    margin: 0 0 3px 0;
+    padding: 0;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.student-card {
+    padding: 2px;
+    margin: 2px 0;
+    background: #eef;
+    border-radius: 3px;
+    font-size: 0.65rem;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Sezione statistiche */
+.stats-section {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 10px;
+}
+.stats-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+.stat-card {
+    background-color: white;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #4a86e8;
+}
+.stat-label {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+/* Layout responsive */
+@media (min-width: 992px) {
+    .main-content {
+        display: grid;
+        grid-template-columns: 7fr 3fr;
+        gap: 15px;
+    }
+    .calendar-and-stats {
+        grid-column: 1;
+    }
+    .links-container {
+        grid-column: 2;
+    }
+    /* Manteniamo 5 icone per riga anche su desktop */
+    .link-grid {
+        grid-template-columns: repeat(5, 1fr);
+        max-height: 400px;
+    }
+}
+@media (max-width: 991px) {
+    .main-content {
+        display: flex;
+        flex-direction: column;
+    }
+    .link-grid {
+        grid-template-columns: repeat(5, 1fr);
+        width: 100%;
+    }
+}
+@media (max-width: 767px) {
+    .link-grid {
+        grid-template-columns: repeat(5, 1fr);
+        width: 100%;
+    }
+}
+@media (max-width: 576px) {
+    .link-grid {
+        grid-template-columns: repeat(5, 1fr);
+        width: 100%;
+    }
+    .days-container {
+        grid-template-columns: repeat(7, 1fr);
+        overflow-x: auto;
+    }
+    .stats-cards {
+        grid-template-columns: 1fr;
+    }
+}
+.emoji-header {
+    font-size: 2rem;
+    text-align: center;
+    margin: 10px 0;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -167,23 +305,86 @@ else:
     
     st.markdown('</div>', unsafe_allow_html=True)
     
+    # Layout principale (responsive)
+    st.markdown('<div class="main-content">', unsafe_allow_html=True)
+    
+    # Contenitore per calendario e statistiche
+    st.markdown('<div class="calendar-and-stats">', unsafe_allow_html=True)
+    
+    # Sezione statistiche generali (in fondo)
+    st.markdown('<div class="stats-section">', unsafe_allow_html=True)
+    if 'studenti' in st.session_state and not st.session_state.studenti.empty:
+        st.markdown('<h2>📊 Panoramica</h2>', unsafe_allow_html=True)
+        st.markdown('<div class="stats-cards">', unsafe_allow_html=True)
+        
+        num_studenti = len(st.session_state.studenti)
+        num_canali = len(st.session_state.studenti['canale'].unique())
+        media = round(num_studenti/num_canali, 1) if num_canali > 0 else 0
+        
+        st.markdown(f"""
+        <div class="stat-card">
+          <div class="stat-value">{num_studenti}</div>
+          <div class="stat-label">Totale Studenti</div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown(f"""
+        <div class="stat-card">
+          <div class="stat-value">{num_canali}</div>
+          <div class="stat-label">Canali Attivi</div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown(f"""
+        <div class="stat-card">
+          <div class="stat-value">{media}</div>
+          <div class="stat-label">Media Studenti/Canale</div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        st.info("👋 Inizia aggiungendo il tuo primo studente dalla sezione 'Studenti'!")
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+    
     # Contenitore per i link
     st.markdown('<div class="links-container">', unsafe_allow_html=True)
     
     # Sezione Quick Links
     if not st.session_state.custom_links.empty:
         st.markdown('<div class="links-section">', unsafe_allow_html=True)
-        st.markdown('<h2>🔗 Link Utili</h2>', unsafe_allow_html=True)
         st.markdown('<div class="link-grid">', unsafe_allow_html=True)
         
         ordered_links = st.session_state.custom_links.sort_values('ordine')
         for _, link in ordered_links.iterrows():
-            st.markdown(f"""
-            <a href="{link.url}" class="custom-link" target="_blank">
-                <span style="font-size: 1.5em;">🔗</span>
-                <span>{link.titolo}</span>
-            </a>
-            """, unsafe_allow_html=True)
+            if link.icona:
+                try:
+                    # Gestisce diversi formati di icona
+                    if isinstance(link.icona, bytes):
+                        encoded_image = base64.b64encode(link.icona).decode()
+                    elif isinstance(link.icona, str):
+                        # Se è già una stringa base64, usala direttamente
+                        encoded_image = link.icona
+                    else:
+                        raise ValueError("Formato icona non supportato")
+
+                    st.markdown(f"""
+                    <a href="{link.url}" class="custom-link" target="_blank">
+                        <img src="data:image/png;base64,{encoded_image}" alt="{link.titolo}"/>
+                        <span>{link.titolo}</span>
+                    </a>
+                    """, unsafe_allow_html=True)
+                except Exception as e:
+                    st.warning(f"Errore nel caricamento dell'icona per {link.titolo}")
+            else:
+                st.markdown(f"""
+                <a href="{link.url}" class="custom-link" target="_blank">
+                    <span style="font-size: 1.5em;">🔗</span>
+                    <span>{link.titolo}</span>
+                </a>
+                """, unsafe_allow_html=True)
         
         st.markdown('</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
@@ -193,4 +394,7 @@ else:
         st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+    
     st.markdown('</div>', unsafe_allow_html=True)

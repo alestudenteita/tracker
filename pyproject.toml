@@ -1,8 +1,9 @@
 [project]
 name = "repl-nix-workspace"
 version = "0.1.0"
-description = "Add your description here"
+description = "A Python-based project for building interactive web apps with Streamlit, handling data analysis with pandas, and more."
 requires-python = ">=3.11"
+
 dependencies = [
     "pandas>=2.2.3",
     "pillow>=11.1.0",
@@ -11,4 +12,5 @@ dependencies = [
     "streamlit>=1.42.2",
     "supabase>=2.13.0",
     "twilio>=9.4.6",
+    "streamlit-extras>=0.2.0",  # Aggiunto streamlit-extras
 ]

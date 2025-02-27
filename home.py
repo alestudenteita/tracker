@@ -203,7 +203,15 @@ else:
         for _, link in ordered_links.iterrows():
             if link.icona:
                 try:
-                    encoded_image = base64.b64encode(link.icona).decode()
+                    # Gestisce diversi formati di icona
+                    if isinstance(link.icona, bytes):
+                        encoded_image = base64.b64encode(link.icona).decode()
+                    elif isinstance(link.icona, str):
+                        # Se è già una stringa base64, usala direttamente
+                        encoded_image = link.icona
+                    else:
+                        raise ValueError("Formato icona non supportato")
+                        
                     st.markdown(f"""
                     <a href="{link.url}" class="custom-link" target="_blank">
                         <img src="data:image/png;base64,{encoded_image}" alt="{link.titolo}"/>

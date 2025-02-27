@@ -1,3 +1,4 @@
+
 import streamlit as st
 
 # Set page config must be the first Streamlit command
@@ -30,7 +31,7 @@ if 'giorni_lezione' not in st.session_state:
 init_auth()
 init_db()
 
-# Modify the CSS styles for quick links and calendar
+# Stili CSS globali
 st.markdown("""
 <style>
 .logo-container {
@@ -50,9 +51,6 @@ st.markdown("""
     padding: 15px;
     background-color: #f8f9fa;
     border-radius: 10px;
-    display: flex;
-    overflow-x: auto;
-    gap: 10px;
 }
 .calendar-header {
     text-align: center;
@@ -61,57 +59,45 @@ st.markdown("""
 }
 .day-column {
     background-color: white;
-    padding: 12px;
+    padding: 8px;
     border-radius: 5px;
-    min-width: 120px;
-    flex: 1;
+    margin: 2px;
+    font-size: 0.8em;
 }
 .day-column h4 {
     font-size: 0.9em;
-    margin-bottom: 8px;
-    text-align: center;
+    margin-bottom: 6px;
 }
 .student-card {
-    padding: 6px;
-    margin: 4px 0;
+    padding: 3px;
+    margin: 2px 0;
     background: #eef;
     border-radius: 3px;
     font-size: 0.75em;
-    text-align: center;
-}
-.link-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 15px;
-    padding: 20px;
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    margin: 20px 0;
 }
 .custom-link {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: inline-block;
     text-align: center;
+    margin: 10px;
     text-decoration: none;
     color: inherit;
-    padding: 10px;
-    background: white;
-    border-radius: 8px;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-.custom-link:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    width: calc(20% - 20px); /* 5 icone per riga */
 }
 .custom-link img {
     width: 48px;
     height: 48px;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
     transition: transform 0.2s;
 }
 .custom-link:hover img {
     transform: scale(1.1);
+}
+.link-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 20px 0;
 }
 .stats-section {
     margin-top: 30px;
@@ -168,3 +154,93 @@ else:
         if st.button("Logout"):
             logout()
             st.rerun()
+
+    # Sezione Calendario Settimanale (compatta)
+    st.markdown('<div class="calendar-section">', unsafe_allow_html=True)
+    st.markdown('<h2 class="calendar-header">📅 Lezioni della Settimana</h2>', unsafe_allow_html=True)
+
+    giorni = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"]
+    cols = st.columns(7)
+
+    if not st.session_state.giorni_lezione.empty:
+        for idx, (col, giorno) in enumerate(zip(cols, giorni)):
+            with col:
+                st.markdown(f'<div class="day-column">', unsafe_allow_html=True)
+                st.markdown(f"#### {giorno}")
+
+                # Filtra gli studenti per questo giorno
+                studenti_giorno = st.session_state.giorni_lezione[
+                    st.session_state.giorni_lezione['giorno'] == giorno
+                ]
+
+                if not studenti_giorno.empty:
+                    for _, studente in studenti_giorno.iterrows():
+                        # Get student name from students table
+                        if 'studente_id' in studente and studente['studente_id'] in st.session_state.studenti['id'].values:
+                            student_record = st.session_state.studenti[st.session_state.studenti['id'] == studente['studente_id']].iloc[0]
+                            student_name = student_record['nome']
+                            st.markdown(f"""
+                            <div class="student-card">
+                                {student_name}
+                            </div>
+                            """, unsafe_allow_html=True)
+                else:
+                    st.markdown("<i>Nessuna lezione</i>", unsafe_allow_html=True)
+
+                st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        for idx, (col, giorno) in enumerate(zip(cols, giorni)):
+            with col:
+                st.markdown(f'<div class="day-column">', unsafe_allow_html=True)
+                st.markdown(f"#### {giorno}")
+                st.markdown("<i>Nessuna lezione</i>", unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
+
+    # Sezione Quick Links
+    if not st.session_state.custom_links.empty:
+        st.markdown('<div class="link-grid">', unsafe_allow_html=True)
+        ordered_links = st.session_state.custom_links.sort_values('ordine')
+        for _, link in ordered_links.iterrows():
+            if link.icona:
+                try:
+                    encoded_image = base64.b64encode(link.icona).decode()
+                    st.markdown(f"""
+                    <a href="{link.url}" class="custom-link" target="_blank">
+                        <img src="data:image/png;base64,{encoded_image}" alt="{link.titolo}"/>
+                        <br/>
+                        {link.titolo}
+                    </a>
+                    """, unsafe_allow_html=True)
+                except Exception as e:
+                    st.warning(f"Errore nel caricamento dell'icona per {link.titolo}")
+            else:
+                st.markdown(f"""
+                <a href="{link.url}" class="custom-link" target="_blank">
+                    <span style="font-size: 2em;">🔗</span>
+                    <br/>
+                    {link.titolo}
+                </a>
+                """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        st.info("🔗 Aggiungi i tuoi link rapidi nella sezione Impostazioni")
+
+    # Sezione statistiche generali (spostata in fondo)
+    st.markdown('<div class="stats-section">', unsafe_allow_html=True)
+    if 'studenti' in st.session_state and not st.session_state.studenti.empty:
+        st.header("📊 Panoramica")
+        col1, col2, col3 = st.columns(3)
+        num_studenti = len(st.session_state.studenti)
+        num_canali = len(st.session_state.studenti['canale'].unique())
+
+        with col1:
+            st.metric("Totale Studenti", num_studenti)
+        with col2:
+            st.metric("Canali Attivi", num_canali)
+        with col3:
+            if num_canali > 0:
+                media = round(num_studenti/num_canali, 1)
+                st.metric("Media Studenti/Canale", media)
+    else:
+        st.info("👋 Inizia aggiungendo il tuo primo studente dalla sezione 'Studenti'!")
+    st.markdown('</div>', unsafe_allow_html=True)

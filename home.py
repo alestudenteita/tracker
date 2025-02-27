@@ -82,6 +82,7 @@ st.markdown("""
     color: inherit;
     width: calc(20% - 20px); /* 5 icone per riga */
     box-sizing: border-box;
+    float: left;
 }
 .custom-link img {
     width: 48px;
@@ -94,6 +95,7 @@ st.markdown("""
 }
 .link-grid {
     display: flex;
+    flex-direction: row;
     flex-wrap: wrap;
     justify-content: flex-start;
     width: 100%;
@@ -199,7 +201,7 @@ else:
     # Sezione Quick Links
     if not st.session_state.custom_links.empty:
         st.markdown('<h2>🔗 Link Utili</h2>', unsafe_allow_html=True)
-        st.markdown('<div class="link-grid">', unsafe_allow_html=True)
+        st.markdown('<div class="link-grid" style="overflow: auto;">', unsafe_allow_html=True)
         ordered_links = st.session_state.custom_links.sort_values('ordine')
         for _, link in ordered_links.iterrows():
             if link.icona:

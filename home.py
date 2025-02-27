@@ -81,6 +81,7 @@ st.markdown("""
     text-decoration: none;
     color: inherit;
     width: calc(20% - 20px); /* 5 icone per riga */
+    box-sizing: border-box;
 }
 .custom-link img {
     width: 48px;
@@ -95,7 +96,7 @@ st.markdown("""
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
-    gap: 10px;
+    width: 100%;
     padding: 20px 0;
 }
 .stats-section {
@@ -197,6 +198,7 @@ else:
 
     # Sezione Quick Links
     if not st.session_state.custom_links.empty:
+        st.markdown('<h2>🔗 Link Utili</h2>', unsafe_allow_html=True)
         st.markdown('<div class="link-grid">', unsafe_allow_html=True)
         ordered_links = st.session_state.custom_links.sort_values('ordine')
         for _, link in ordered_links.iterrows():

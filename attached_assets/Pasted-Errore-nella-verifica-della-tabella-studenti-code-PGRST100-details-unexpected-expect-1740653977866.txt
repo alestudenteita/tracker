@@ -1,0 +1,19 @@
+Errore nella verifica della tabella studenti: {'code': 'PGRST100', 'details': 'unexpected '(' expecting letter, digit, "-", "->>", "->", "::", ".", ")", "," or end of input', 'hint': None, 'message': '"failed to parse select parameter (count(*))" (line 1, column 6)'}
+
+Errore nella verifica della tabella giorni_lezione: {'code': 'PGRST100', 'details': 'unexpected '(' expecting letter, digit, "-", "->>", "->", "::", ".", ")", "," or end of input', 'hint': None, 'message': '"failed to parse select parameter (count(*))" (line 1, column 6)'}
+
+Errore nella verifica della tabella libreria: {'code': 'PGRST100', 'details': 'unexpected '(' expecting letter, digit, "-", "->>", "->", "::", ".", ")", "," or end of input', 'hint': None, 'message': '"failed to parse select parameter (count(*))" (line 1, column 6)'}
+
+Errore nella verifica della tabella progressi: {'code': 'PGRST100', 'details': 'unexpected '(' expecting letter, digit, "-", "->>", "->", "::", ".", ")", "," or end of input', 'hint': None, 'message': '"failed to parse select parameter (count(*))" (line 1, column 6)'}
+
+Errore nella verifica della tabella pagamenti: {'code': 'PGRST100', 'details': 'unexpected '(' expecting letter, digit, "-", "->>", "->", "::", ".", ")", "," or end of input', 'hint': None, 'message': '"failed to parse select parameter (count(*))" (line 1, column 6)'}
+
+Errore nella verifica della tabella custom_links: {'code': 'PGRST100', 'details': 'unexpected '(' expecting letter, digit, "-", "->>", "->", "::", ".", ")", "," or end of input', 'hint': None, 'message': '"failed to parse select parameter (count(*))" (line 1, column 6)'}
+
+Errore nella verifica della tabella branding_settings: {'code': 'PGRST100', 'details': 'unexpected '(' expecting letter, digit, "-", "->>", "->", "::", ".", ")", "," or end of input', 'hint': None, 'message': '"failed to parse select parameter (count(*))" (line 1, column 6)'}
+
+Errore nella verifica della tabella libri_disponibili: {'code': 'PGRST100', 'details': 'unexpected '(' expecting letter, digit, "-", "->>", "->", "::", ".", ")", "," or end of input', 'hint': None, 'message': '"failed to parse select parameter (count(*))" (line 1, column 6)'}
+
+Le seguenti tabelle non sono state trovate: studenti, giorni_lezione, libreria, progressi, pagamenti, custom_links, branding_settings, libri_disponibili
+
+Verifica che tutte le tabelle siano create correttamente in Supabase.

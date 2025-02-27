@@ -295,16 +295,7 @@ else:
             st.markdown("<div class='emoji-header'>📚 💬 🎓</div>", unsafe_allow_html=True)
     else:
         st.markdown("<div class='emoji-header'>📚 💬 🎓</div>", unsafe_allow_html=True)
-    
-    # Pulsante Logout
-    st.markdown('<div class="logout-button">', unsafe_allow_html=True)
-    if st.button("Logout"):
-        logout()
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
-    
-    st.markdown('</div>', unsafe_allow_html=True)
-    
+
     # Layout principale (responsive)
     st.markdown('<div class="main-content">', unsafe_allow_html=True)
     
@@ -314,7 +305,6 @@ else:
     # Sezione statistiche generali (in fondo)
     st.markdown('<div class="stats-section">', unsafe_allow_html=True)
     if 'studenti' in st.session_state and not st.session_state.studenti.empty:
-        st.markdown('<h2>📊 Panoramica</h2>', unsafe_allow_html=True)
         st.markdown('<div class="stats-cards">', unsafe_allow_html=True)
         
         num_studenti = len(st.session_state.studenti)
@@ -398,3 +388,13 @@ else:
     st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown('</div>', unsafe_allow_html=True)
+
+ # Pulsante Logout
+    st.markdown('<div class="logout-button">', unsafe_allow_html=True)
+    if st.button("Logout"):
+        logout()
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+    

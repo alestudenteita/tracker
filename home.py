@@ -1,5 +1,8 @@
-
 import streamlit as st
+from utils.supabase_db import init_db, get_branding_settings
+from utils.auth import init_auth, check_auth, login, logout
+import pandas as pd
+import base64
 
 # Set page config must be the first Streamlit command
 st.set_page_config(
@@ -7,11 +10,6 @@ st.set_page_config(
     page_icon="📚",
     layout="wide"
 )
-
-import pandas as pd
-import base64
-from utils.supabase_db import init_db, get_branding_settings
-from utils.auth import init_auth, check_auth, login, logout
 
 # Initialize session state variables
 if 'authenticated' not in st.session_state:
@@ -26,31 +24,21 @@ if 'custom_links' not in st.session_state:
 if 'giorni_lezione' not in st.session_state:
     st.session_state.giorni_lezione = pd.DataFrame()
 
-
-# Initialize auth and database first
+# Initialize auth and database
 init_auth()
 init_db()
 
-# Stili CSS globali
+# CSS styles for layout
 st.markdown("""
 <style>
-.logo-container {
-    text-align: center;
-    margin: 20px auto;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-}
-.logo-container img {
-    max-width: 180px;
-    height: auto;
-    margin: 0 auto;
-}
 .calendar-section {
     margin: 20px 0;
     padding: 15px;
     background-color: #f8f9fa;
     border-radius: 10px;
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
 }
 .calendar-header {
     text-align: center;
@@ -59,45 +47,57 @@ st.markdown("""
 }
 .day-column {
     background-color: white;
-    padding: 8px;
+    padding: 12px;
     border-radius: 5px;
-    margin: 2px;
-    font-size: 0.8em;
+    min-width: 120px;
+    flex: 1;
 }
 .day-column h4 {
     font-size: 0.9em;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
+    text-align: center;
 }
 .student-card {
-    padding: 3px;
-    margin: 2px 0;
+    padding: 6px;
+    margin: 4px 0;
     background: #eef;
     border-radius: 3px;
     font-size: 0.75em;
+    text-align: center;
+}
+.link-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    margin: 20px 0;
 }
 .custom-link {
-    display: inline-block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
-    margin: 10px;
     text-decoration: none;
     color: inherit;
-    width: calc(20% - 20px); /* 5 icone per riga */
+    padding: 10px;
+    background: white;
+    border-radius: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.custom-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 .custom-link img {
     width: 48px;
     height: 48px;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
     transition: transform 0.2s;
 }
 .custom-link:hover img {
     transform: scale(1.1);
-}
-.link-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 10px;
-    padding: 20px 0;
 }
 .stats-section {
     margin-top: 30px;
@@ -115,7 +115,7 @@ except Exception as e:
     st.error(f"Errore nel caricamento delle impostazioni: {str(e)}")
     logo_bytes, welcome_message = None, None
 
-# Gestione Login
+# Login handling
 if not check_auth():
     st.title("🔐 Login")
 
@@ -134,69 +134,41 @@ if not check_auth():
             else:
                 st.error("Username o password non validi")
 else:
-    # Header con logout
-    col1, col2 = st.columns([6,1])
+    # Main dashboard content
+    st.title("📚 Dashboard")
 
-    # Logo centrato
-    col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
-    with col_logo2:
-        if logo_bytes:
-            try:
-                st.markdown('<div class="logo-container">', unsafe_allow_html=True)
-                st.image(logo_bytes, use_container_width=True)
-                st.markdown('</div>', unsafe_allow_html=True)
-            except:
-                st.markdown("<div class='emoji-header'>📚 💬 🎓</div>", unsafe_allow_html=True)
-        else:
-            st.markdown("<div class='emoji-header'>📚 💬 🎓</div>", unsafe_allow_html=True)
-
-    with col2:
-        if st.button("Logout"):
-            logout()
-            st.rerun()
-
-    # Sezione Calendario Settimanale (compatta)
+    # Calendar Section
     st.markdown('<div class="calendar-section">', unsafe_allow_html=True)
     st.markdown('<h2 class="calendar-header">📅 Lezioni della Settimana</h2>', unsafe_allow_html=True)
 
     giorni = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"]
-    cols = st.columns(7)
 
-    if not st.session_state.giorni_lezione.empty:
-        for idx, (col, giorno) in enumerate(zip(cols, giorni)):
-            with col:
-                st.markdown(f'<div class="day-column">', unsafe_allow_html=True)
-                st.markdown(f"#### {giorno}")
+    for giorno in giorni:
+        st.markdown(f'<div class="day-column">', unsafe_allow_html=True)
+        st.markdown(f"<h4>{giorno}</h4>", unsafe_allow_html=True)
 
-                # Filtra gli studenti per questo giorno
-                studenti_giorno = st.session_state.giorni_lezione[
-                    st.session_state.giorni_lezione['giorno'] == giorno
-                ]
+        # Filter students for this day
+        studenti_giorno = st.session_state.giorni_lezione[
+            st.session_state.giorni_lezione['giorno'] == giorno
+        ]
 
-                if not studenti_giorno.empty:
-                    for _, studente in studenti_giorno.iterrows():
-                        # Get student name from students table
-                        if 'studente_id' in studente and studente['studente_id'] in st.session_state.studenti['id'].values:
-                            student_record = st.session_state.studenti[st.session_state.studenti['id'] == studente['studente_id']].iloc[0]
-                            student_name = student_record['nome']
-                            st.markdown(f"""
-                            <div class="student-card">
-                                {student_name}
-                            </div>
-                            """, unsafe_allow_html=True)
-                else:
-                    st.markdown("<i>Nessuna lezione</i>", unsafe_allow_html=True)
+        if not studenti_giorno.empty:
+            for _, studente in studenti_giorno.iterrows():
+                if 'studente_id' in studente and studente['studente_id'] in st.session_state.studenti['id'].values:
+                    student_record = st.session_state.studenti[st.session_state.studenti['id'] == studente['studente_id']].iloc[0]
+                    student_name = student_record['nome']
+                    st.markdown(f"""
+                    <div class="student-card">
+                        {student_name}
+                    </div>
+                    """, unsafe_allow_html=True)
+        else:
+            st.markdown("<i>Nessuna lezione</i>", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
-                st.markdown('</div>', unsafe_allow_html=True)
-    else:
-        for idx, (col, giorno) in enumerate(zip(cols, giorni)):
-            with col:
-                st.markdown(f'<div class="day-column">', unsafe_allow_html=True)
-                st.markdown(f"#### {giorno}")
-                st.markdown("<i>Nessuna lezione</i>", unsafe_allow_html=True)
-                st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    # Sezione Quick Links
+    # Quick Links Section
     if not st.session_state.custom_links.empty:
         st.markdown('<div class="link-grid">', unsafe_allow_html=True)
         ordered_links = st.session_state.custom_links.sort_values('ordine')
@@ -207,7 +179,6 @@ else:
                     st.markdown(f"""
                     <a href="{link.url}" class="custom-link" target="_blank">
                         <img src="data:image/png;base64,{encoded_image}" alt="{link.titolo}"/>
-                        <br/>
                         {link.titolo}
                     </a>
                     """, unsafe_allow_html=True)
@@ -217,7 +188,6 @@ else:
                 st.markdown(f"""
                 <a href="{link.url}" class="custom-link" target="_blank">
                     <span style="font-size: 2em;">🔗</span>
-                    <br/>
                     {link.titolo}
                 </a>
                 """, unsafe_allow_html=True)
@@ -225,22 +195,17 @@ else:
     else:
         st.info("🔗 Aggiungi i tuoi link rapidi nella sezione Impostazioni")
 
-    # Sezione statistiche generali (spostata in fondo)
+    # Stats Section
     st.markdown('<div class="stats-section">', unsafe_allow_html=True)
-    if 'studenti' in st.session_state and not st.session_state.studenti.empty:
+    if not st.session_state.studenti.empty:
         st.header("📊 Panoramica")
         col1, col2, col3 = st.columns(3)
-        num_studenti = len(st.session_state.studenti)
-        num_canali = len(st.session_state.studenti['canale'].unique())
 
         with col1:
-            st.metric("Totale Studenti", num_studenti)
+            st.metric("Totale Studenti", len(st.session_state.studenti))
         with col2:
-            st.metric("Canali Attivi", num_canali)
+            st.metric("Canali Attivi", len(st.session_state.studenti['canale'].unique()))
         with col3:
-            if num_canali > 0:
-                media = round(num_studenti/num_canali, 1)
-                st.metric("Media Studenti/Canale", media)
-    else:
-        st.info("👋 Inizia aggiungendo il tuo primo studente dalla sezione 'Studenti'!")
+            media = round(len(st.session_state.studenti)/max(1, len(st.session_state.studenti['canale'].unique())), 1)
+            st.metric("Media Studenti/Canale", media)
     st.markdown('</div>', unsafe_allow_html=True)

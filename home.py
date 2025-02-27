@@ -86,6 +86,7 @@ st.markdown("""
     gap: 10px;
     overflow-y: auto;
     max-height: 300px;
+    width: 100%;
 }
 .custom-link {
     display: flex;
@@ -119,39 +120,46 @@ st.markdown("""
 .calendar-section {
     background-color: #f8f9fa;
     border-radius: 10px;
-    padding: 12px;
+    padding: 8px;
     margin-bottom: 15px;
+    overflow-x: hidden;
 }
 .calendar-header {
     font-size: 1.2rem;
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 .days-container {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
+    gap: 3px;
 }
 .day-column {
     background-color: white;
-    padding: 6px;
+    padding: 4px;
     border-radius: 5px;
     border: 1px solid #e0e0e0;
+    min-width: 0;
 }
 .day-column h4 {
-    font-size: 0.75rem;
-    margin: 0 0 5px 0;
+    font-size: 0.7rem;
+    margin: 0 0 3px 0;
     padding: 0;
     text-align: center;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .student-card {
-    padding: 3px;
+    padding: 2px;
     margin: 2px 0;
     background: #eef;
     border-radius: 3px;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Sezione statistiche */
@@ -200,8 +208,9 @@ st.markdown("""
     .links-container {
         grid-column: 2;
     }
+    /* Manteniamo 5 icone per riga anche su desktop */
     .link-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(5, 1fr);
         max-height: 400px;
     }
 }
@@ -221,10 +230,11 @@ st.markdown("""
 }
 @media (max-width: 576px) {
     .link-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(5, 1fr);
     }
     .days-container {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(7, 1fr);
+        overflow-x: auto;
     }
     .stats-cards {
         grid-template-columns: 1fr;
